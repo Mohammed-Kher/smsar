@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use http\Env\Response;
 use Illuminate\Http\Request;
-
+use App\Models\Property;
 class PropertyController extends Controller
 {
     /**
@@ -11,45 +12,52 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        //
+        $properties = Property::all();
+        return response()->json([$properties],200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        $validate = $request->validate([
+            'userId' => 'required',
+            'location' => 'required|string',
+            'type' => 'required|in:sale,rent',
+        ]);
+        if($validate->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validate->errors(),
+            ], 422);
+        }
+        $property = new Property();
+        $property['userId'] = $request['userId'];
+        $property['location'] = $request['location'];
+        $property['type'] = $request['type'];
+        $property->save();
+        return response()->json([
+            'message' => 'property added successfully',
+        ], 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Property $property)
     {
-        //
+        return response()->json([
+            'data' => $property,
+        ], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Property $property)
     {
         //
     }
@@ -57,7 +65,7 @@ class PropertyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Property $property)
     {
         //
     }
