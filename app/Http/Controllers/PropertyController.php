@@ -59,7 +59,25 @@ class PropertyController extends Controller
      */
     public function update(Request $request, Property $property)
     {
-        //
+        $validate = $request->validate([
+            'userId' => 'required',
+            'location' => 'required|string',
+            'type' => 'required|in:sale,rent',
+        ]);
+        if($validate->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validate->errors(),
+            ], 422);
+        }
+        $property->update([
+            'userId' => $request['userId'],
+            'location' => $request['location'],
+            'type' => $request['type'],
+        ]);
+        return response()->json([
+            'message' => 'property updated successfully',
+        ], 200);
     }
 
     /**
@@ -67,6 +85,9 @@ class PropertyController extends Controller
      */
     public function destroy(Property $property)
     {
-        //
+        $property->delete();
+        return response()->json([
+            'message' => 'property deleted succesfully',
+        ], 200);
     }
 }
